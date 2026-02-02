@@ -6,7 +6,7 @@ import mail
 
 print("Installing dependencies...")
 for package in ["scikit-learn", "python-dotenv"]:
-    installSuccess = subprocess.run(["pip3", "install", package]).returncode == 0
+    installSuccess = subprocess.run(["pip", "install", package]).returncode == 0
     if installSuccess:
         print(f"Package installed: {package}!")
     else:
