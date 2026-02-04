@@ -1,3 +1,14 @@
+# Config Files
 .env
 emails.json
 config.json
+
+# Python Files
+__pycache__/
+*.egg-info/
+.venv/
+uv.lock
+
+# IDE Files
+.idea/
+.vscode/

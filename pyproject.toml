@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ray"
+version = "0.1.0"
+description = "Ray email sorting utility"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+	"scikit-learn",
+	"python-dotenv",
+	"setuptools",
+]
+
+[project.scripts]
+ray = "helpers:start"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+py-modules = ["helpers", "sort", "load", "mail"]
