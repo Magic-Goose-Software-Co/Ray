@@ -8,9 +8,9 @@ A simple to use email sorter named after [Ray Tomlinson](https://en.wikipedia.or
 
 ## Setup
 
-Download the repo
+Download the repo via a python package manager
 ```bash
-git clone https://github.com/magic-goose-software-co/ray.git
+pip install git+https://github.com/Magic-Goose-Software-Co/Ray
 ```
 
 Run setup command.
