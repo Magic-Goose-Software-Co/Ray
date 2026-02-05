@@ -73,10 +73,7 @@ def runApp():
                 progress.update(task, description=f"Sorting \"{email['subject'][:50]}...\"")
                 destination = sortFunc(email)
                 account.moveEmail(email["uid"], "INBOX", destination)
-                try:
-                    trainingMail[destination].append(email)
-                except KeyError:
-                    trainingMail[destination] = [email]
+                trainingMail.setdefault(destination, []).append(email)
                 console.log(
                     f"[light_blue][INFO] Moved \"[green]{email['subject']}[/green]\" (sender \"[green]{email['sender']}[/green]\") to \"[green]{destination}[/green]\".[/light_blue]")
                 progress.advance(task)
