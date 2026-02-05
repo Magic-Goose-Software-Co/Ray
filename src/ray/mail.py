@@ -1,7 +1,8 @@
-import imaplib
 import email
+import imaplib
 from email.header import decode_header
-from datetime import datetime
+
+from .config import console
 
 
 def decodeMimeWords(s):
@@ -19,6 +20,7 @@ def decodeMimeWords(s):
 
     return decodedString
 
+
 class Account:
     def __init__(self, address, password, server):
         self.address = address
@@ -27,17 +29,31 @@ class Account:
 
         self.mail = imaplib.IMAP4_SSL(self.server)
         self.mail.login(self.address, self.password)
-        self.mailboxes = [mailbox.decode().split("\"")[3] for mailbox in self.mail.list()[1]]
+
+        # fixed parsing mailboex to avoid non-selectable mailboxes
+        self.mailboxes = []
+        for mailbox in self.mail.list()[1]:
+            decoded = mailbox.decode()
+            # extract mailbox name
+            parts = decoded.split('"')
+            if len(parts) >= 4:
+                mailbox_name = parts[-2]
+                # only include selectable mailboxes
+                if '\\Noselect' not in decoded:
+                    self.mailboxes.append(mailbox_name)
 
     def getMail(self, mailbox, sinceDate, limit=None):
         emails = []
 
         try:
-            self.mail.select(mailbox)
+            status, _ = self.mail.select(f'"{mailbox}"')
+            if status != "OK":
+                console.log(f"[red]IMAP error: Failed to select mailbox '{mailbox}'[/red]")
+                return emails
 
             imapDate = sinceDate.strftime("%d-%b-%Y")
 
-            status, messages = self.mail.uid("search", None, f"SINCE \"{imapDate}\"")
+            status, messages = self.mail.uid("search", f"SINCE \"{imapDate}\"")
 
             if status != "OK":
                 return emails
@@ -82,12 +98,12 @@ class Account:
             return emails
 
         except imaplib.IMAP4.error as e:
-            print(f"IMAP error: {e}")
+            console.log(f"[red]IMAP error: {e}[/red]")
             return []
 
     def moveEmail(self, uid, source, destination):
-        self.mail.select(source)
-        self.mail.uid("MOVE", str(uid), destination)
+        self.mail.select(f'"{source}"')
+        self.mail.uid("MOVE", str(uid), f'"{destination}"')
 
     def logout(self):
         self.mail.logout()

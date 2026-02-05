@@ -11,12 +11,17 @@ requires-python = ">=3.8"
 dependencies = [
 	"scikit-learn",
 	"python-dotenv",
-	"setuptools",
+    "rich",
 ]
 
 [project.scripts]
-ray = "helpers:start"
+ray = "ray.helpers:start"
 
 [tool.setuptools]
-package-dir = {"" = "src"}
-py-modules = ["helpers", "sort", "load", "mail"]
+packages = ["ray"]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+
+

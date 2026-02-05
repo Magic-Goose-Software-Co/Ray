@@ -1,7 +1,3 @@
-# Config Files
-.env
-emails.json
-config.json
 
 # Python Files
 __pycache__/
