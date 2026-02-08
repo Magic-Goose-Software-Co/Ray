@@ -42,7 +42,9 @@ for email in account.getMail("INBOX", lastRun):
     destination = sortFunc(email)
     account.moveEmail(email["uid"], "INBOX", destination)
     trainingMail[destination].append(email)
-    print("[INFO] Moved \""+email["subject"]+"\" (sender \""+email["sender"]+f"\") to \"{destination}\".")
+    if destination == "INBOX":
+        print("[INFO] Left \""+email["subject"]+"\" (sent by \""+email["sender"]+" in the inbox.")
+    else: print("[INFO] Moved \""+email["subject"]+"\" (sent by \""+email["sender"]+f"\") to \"{destination}\".")
 
 with (Path(__file__).resolve().parent / "emails.json").open("w") as emailsFile:
     json.dump({"lastRun": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "emails": trainingMail}, emailsFile, indent=4)
