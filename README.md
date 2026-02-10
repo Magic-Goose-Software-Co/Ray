@@ -1,5 +1,7 @@
 
-![Ray logo](/logo.svg)# Ray
+
+
+# <img src="/logo.svg" style="width: 5%;"> Ray
 
 A simple to use email client and sorter named after [Ray Tomlinson](https://en.wikipedia.org/wiki/Ray_Tomlinson).
 
