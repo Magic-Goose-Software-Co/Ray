@@ -3,7 +3,6 @@ from pathlib import Path
 from datetime import datetime
 import subprocess
 
-import load
 import mail
 
 print("Installing dependencies...")
@@ -14,6 +13,8 @@ for package in ["scikit-learn", "python-dotenv"]:
     else:
         print(f"Error installing {package}.")
         exit()
+
+import load
 
 print("")
 print("What is your email address?")
