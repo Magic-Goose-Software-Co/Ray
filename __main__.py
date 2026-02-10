@@ -172,13 +172,12 @@ while True:
     while key not in ["\x1b[A", "\x1b[B", "\x1b[C", "\x1b[D", "\x03", "\r"]:
         key = readKey()
 
-    newEmail = False
+    newEmail = key == "\r"
 
     if key == "\x03": break
     elif key == "\x1b[C": emailSelection = True
     elif key == "\x1b[D": emailSelection = False
     elif key == "\r":
-        newEmail = emailSelection
         if emailSelection: selectedEmail = shownSelectedEmail
         else:
             selectedMailbox = shownSelectedMailbox
