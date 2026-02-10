@@ -41,4 +41,4 @@ Run`python ray` to open the client.
 
 ## Sort Usage
 
-Move some emails into the mailboxes you want it to sort mail into and run `python ray`.
+Move some emails into the mailboxes you want it to sort mail into and run `python ray/sort.py`.
