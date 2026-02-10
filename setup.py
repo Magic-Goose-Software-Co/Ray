@@ -2,6 +2,8 @@ import json
 from pathlib import Path
 from datetime import datetime
 import subprocess
+
+import load
 import mail
 
 print("Installing dependencies...")
@@ -29,30 +31,26 @@ print("What is the IMAP server?")
 server = input("Server: ")
 
 print("")
-print("You should now create any mailboxes you will want Ray to move emails to (if you haven't already done so).")
+print("You should now create any mailboxes you will want Ray Sort to move emails to.")
 print("Press return when you have created them.")
 input("")
 
 account = mail.Account(address, password, server)
 
 mailboxes = []
-print("Press Y for each of the following mailboxes if you want Ray to move emails to it.")
+print("Press Y for each of the following mailboxes if you want Ray Sort to move emails to it.")
 for mailbox in account.mailboxes:
     if input(mailbox+": (y/n) ").lower() == "y": mailboxes.append(mailbox)
 
 print("")
-print("Would you like Ray to sort based on the sender or the subject? ")
+print("Would you like Ray Sort to sort based on the sender or the subject? ")
 print("Type \"sender\" or \"subject\" (case-insensitive).")
 sortType = input("Sort Type: ").lower()
 
-with (Path(__file__).resolve().parent / "config.json").open("w") as configFile:
-    json.dump({"address": address, "server": server, "mailboxes": mailboxes, "sortType": sortType}, configFile, indent=4)
-
-with (Path(__file__).resolve().parent / ".env").open("w") as dotEnv:
-    dotEnv.write("PASSWORD="+password)
-
-with (Path(__file__).resolve().parent / "emails.json").open("w") as emailsFile:
-    json.dump({"lastRun": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "emails": {}}, emailsFile, indent=4)
+load.writeConfig({"address": address, "server": server, "sortMailboxes": mailboxes, "sortType": sortType})
+load.writePassword(password)
+load.writeEmails({})
+load.writeEmails({}, "sortEmails.json")
 
 print("")
-print("Ray is now fully configured and set up! Next time you receive an email, put it in the mailbox you would like Ray to put similar emails in. Run \"python .\" from inside the Ray directory or \"python path/to/ray/dir\" from outside.")
+print("Ray is now fully configured and set up! To use Ray Sort, next time you receive an email, put it in the mailbox you would like Ray to put similar emails in and run \"python ./sort.py\" from inside the Ray directory or \"python path_to_ray_dir/sort.py\" from outside.")

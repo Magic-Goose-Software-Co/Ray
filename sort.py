@@ -1,25 +1,42 @@
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.naive_bayes import MultinomialNB
+import load
+import mail
+import getMail
+import ml
 
-class Model:
-    def __init__(self, trainingMail):
-        emails = [dict(item, mailbox=mb) for mb, items in trainingMail.items() for item in items]
+config = load.getConfig()
+account = mail.Account(config["address"], load.getPassword(), config["server"])
 
-        self.subjectVectorizer = CountVectorizer()
-        subjectX = self.subjectVectorizer.fit_transform([email["subject"] for email in emails])
-        self.subjectModel = MultinomialNB()
-        self.subjectModel.fit(subjectX, [email["mailbox"] for email in emails])
+notFoundMailboxes = list(set(config["sortMailboxes"]) - set(account.mailboxes))
+for mailbox in notFoundMailboxes:
+    print(f"[ERROR] Expected mailbox \"{mailbox}\" was not found.")
+if len(notFoundMailboxes) != 0:
+    exit()
 
-        self.senderVectorizer = CountVectorizer()
-        senderX = self.senderVectorizer.fit_transform([email["sender"] for email in emails])
-        self.senderModel = MultinomialNB()
-        self.senderModel.fit(senderX, [email["mailbox"] for email in emails])
+for mailbox in list(set(account.mailboxes) - set(config["sortMailboxes"])):
+    print(f"[INFO] Mailbox \"{mailbox}\" will not be a sort destination.")
 
-    def sortBySubject(self, email):
-        newSubjectX = self.subjectVectorizer.transform([email["subject"]])
-        return self.subjectModel.predict(newSubjectX)[0]
+trainingMail = getMail.getMail(account, config["sortMailboxes"], file="sortEmails.json")
 
-    def sortBySender(self, email):
-        newSenderX = self.senderVectorizer.transform([email["sender"]])
-        return self.senderModel.predict(newSenderX)[0]
+newInbox = list(set(trainingMail) - set(load.getEmails(file="sortEmails.json")))
+
+model = ml.Model(trainingMail)
+
+if config["sortType"] == "subject":
+    sortFunc = model.sortBySubject
+elif config["sortType"] == "sender":
+    sortFunc = model.sortBySender
+
+latestUid = sorted(trainingMail["INBOX"], key=lambda email: email["uid"])[-1]["uid"] if "INBOX" in trainingMail else getMail.getLatestUID(account, "INBOX")
+
+for email in account.getMailSinceUID("INBOX", latestUid):
+    destination = sortFunc(email)
+    account.moveEmail(email["uid"], "INBOX", destination)
+    trainingMail[destination].append(email)
+    if destination == "INBOX":
+        print("[INFO] Left \""+email["subject"]+"\" (sent by \""+email["sender"]+" in the inbox.")
+    else: print("[INFO] Moved \""+email["subject"]+"\" (sent by \""+email["sender"]+f"\") to \"{destination}\".")
+
+load.writeEmails(trainingMail, file="sortEmails.json")
+
+account.logout()
 
